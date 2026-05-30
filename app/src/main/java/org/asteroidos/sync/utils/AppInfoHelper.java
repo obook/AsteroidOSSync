@@ -67,12 +67,24 @@ public class AppInfoHelper
                     }
                 }
                 else {
-                    icon = Bitmap.createBitmap(apkIcon.getIntrinsicWidth(), apkIcon.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
-                    Canvas canvas = new Canvas(icon);
-                    apkIcon.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
-                    apkIcon.draw(canvas);
+                    // Non-BitmapDrawable icons (e.g. adaptive or vector drawables) may
+                    // report no intrinsic size. Calling Bitmap.createBitmap with a width
+                    // or height <= 0 throws IllegalArgumentException, which crashes the
+                    // app on newer Android versions, so guard against it.
+                    int width = apkIcon.getIntrinsicWidth();
+                    int height = apkIcon.getIntrinsicHeight();
+                    if(width > 0 && height > 0) {
+                        icon = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+                        Canvas canvas = new Canvas(icon);
+                        apkIcon.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+                        apkIcon.draw(canvas);
+                    } else {
+                        Log.d(TAG, String.format(
+                                "icon for %s had invalid height or width (h: %d w: %d)",
+                                pinfo.packageName, height, width));
+                    }
                 }
-            } catch(ClassCastException ignored) {}
+            } catch(Exception ignored) {}
             AppInfo appInfo = new AppInfo(pinfo.packageName,
                     pinfo.applicationInfo.loadLabel(pm).toString(),
                     isSystem,
