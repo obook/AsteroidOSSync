@@ -72,6 +72,12 @@ If you don't have a device running AsteroidOS, instructions for installation can
 
 To get started with a developing for AsteroidOSSync, fork and clone the project, and import into any Android IDE. 
 
+A self-compiled build is signed with a different key than the F-Droid and Play Store releases, so Android does not automatically grant it the notification listener permission. After installing your own APK, grant the permission manually with adb:
+
+```
+adb shell cmd notification allow_listener org.asteroidos.sync/org.asteroidos.sync.services.NLService
+```
+
 ### Architecture of AsteroidOSSync
 
 The [MainActivity](./app/src/main/java/org/asteroidos/sync/MainActivity.java) manages the UI fragments based on the current `IAsteroidDevice.ConnectionState` and starts a backend that is responsible for communication with the watch.
